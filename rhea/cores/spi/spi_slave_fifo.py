@@ -48,12 +48,12 @@ def spi_slave_fifo(glbl, spibus, fifobus):
     oreg, ocap = Signals(intbv(0)[8:], 2)
     bitcnt, b2, b3 = Signals(intbv(0, min=0, max=10), 3)
 
-    @always(sck.posedge, csn.negedge)
+    @always( csn.negedge)#, sck.posedge
     def csn_falls():
-        if sck:
-            spi_start.next = False
-        elif not csn:
-            spi_start.next = True
+#        if sck:
+        spi_start.next = True
+#        elif not csn:
+#            spi_start.next = True
 
     # SCK clock domain, this allows high SCK rates
     @always(sck.posedge, csn.posedge)
@@ -79,8 +79,8 @@ def spi_slave_fifo(glbl, spibus, fifobus):
                 b2.next = 0
 
     # synchronize the SCK domain to the clock domain
-    syncro(clock, icap, icaps)
-    syncro(clock, b2, b3)
+    s1 = syncro(clock, icap, icaps)
+    s2 = syncro(clock, b2, b3)
 
     gotit = Signal(bool(0))
 
