@@ -21,9 +21,9 @@ leds = Signal(intbv(0)[8:])
 clock  = Signal(False)
 clk_div = Signal(False)
 
-#tx = Signal(intbv(0)[8:])
+tx = Signal(intbv(0)[8:])
 #rx = Signal(intbv(0)[8:])
-#enable = Signal (0)
+enable = Signal (0)
 #reset = ResetSignal(False)
 
 @block
@@ -126,7 +126,7 @@ def test_spi_led(clock, sck, mosi, miso, cs, leds):
 
 
 
-tr = spi_slave_led(clock, sck, mosi,miso, cs, leds)
-#tr.config_sim(trace=True)
-#tr.run_sim(1000)
-tr.convert('Verilog',initial_values=True)
+tr = test_spi_led(clock, sck, mosi,miso, cs, leds)
+tr.config_sim(trace=True)
+tr.run_sim(1000)
+#tr.convert('Verilog',initial_values=True)
