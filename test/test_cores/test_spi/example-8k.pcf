@@ -11,3 +11,4 @@ set_io sck N16
 set_io miso M16
 set_io mosi K15
 set_io cs K16
+set_io out C16
