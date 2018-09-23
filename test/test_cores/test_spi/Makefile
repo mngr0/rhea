@@ -16,3 +16,5 @@ spi_slave_pulsegen.v: spi_slave_pulsegen.py
 clean:
 	rm tb.* *.v *.vcd *.pyc
 
+test: spi_slave_pulsegen.py
+	python spi_slave_pulsegen.py --test

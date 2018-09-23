@@ -8,7 +8,7 @@ from myhdl import (Signal, intbv, instance, always_comb, delay, always,
                    StopSimulation, block)
 
 from rhea.system import Global, Clock, Reset, FIFOBus, Signals
-from rhea.cores.spi import SPIBus, spi_slave_fifo
+from rhea.cores.spi import SPIBus, spi_slave_fifo_async
 from rhea.utils.test import run_testbench, tb_default_args, tb_args
 from ser import ser
 from ClkDriver import ClkDriver
@@ -83,13 +83,15 @@ def spi_slave_pulsegen(clock, sck, mosi, miso, cs, leds, out):
     glbl = Global(clock)
     spibus = SPIBus(sck=sck, mosi=mosi, miso=miso, ss=cs)
     fifobus = FIFOBus()
-    div = divisor (clock, clk_div, 4)
-    divp = divisor (clock, clk_pulse, 200)
+    fifobus.write_clock=clock
+    fifobus.read_clock=clock
+    div = divisor (clock, clk_div, 1)
+    divp = divisor (clock, clk_pulse, 1)
 
     rtl = recv_to_plsgen(clk_div, clk_pulse, fifobus,leds, out)
     #rtl = recv_to_led(clk_div, fifobus, leds)
 
-    tbdut = spi_slave_fifo(glbl, spibus, fifobus)
+    tbdut = spi_slave_fifo_async(glbl, spibus, fifobus)
 
     @always_comb
     def map():
@@ -107,7 +109,7 @@ def test_spi_pulsegen(clock, sck, mosi, miso, cs, leds, out):
     @always_comb
     def map():
         sck.next = clock
-        
+
 
     @instance
     def tbstim():
@@ -125,7 +127,7 @@ def test_spi_pulsegen(clock, sck, mosi, miso, cs, leds, out):
         tx.next=98
         yield delay(70)
         tx.next=23
-        yield delay(20)		
+        yield delay(20)
         #assert rx == 98
         yield delay(90)
         #assert rx == 23
@@ -135,10 +137,15 @@ def test_spi_pulsegen(clock, sck, mosi, miso, cs, leds, out):
 
     return myhdl.instances()
 
+if "--test" in str(sys.argv):
+	do_test=True
+else:
+    do_test=False
 
-
-tr = test_spi_pulsegen(clock, sck, mosi,miso, cs, leds, out)
-tr.config_sim(trace=True)
-tr.run_sim(1000)
-#tr = spi_slave_pulsegen(clock, sck, mosi,miso, cs, leds, out)
-#tr.convert('Verilog',initial_values=True)
+if do_test:
+    tr = test_spi_pulsegen(clock, sck, mosi,miso, cs, leds, out)
+    tr.config_sim(trace=True)
+    tr.run_sim(1000)
+else:
+    tr = spi_slave_pulsegen(clock, sck, mosi,miso, cs, leds, out)
+    tr.convert('Verilog',initial_values=True)
