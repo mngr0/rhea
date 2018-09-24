@@ -64,7 +64,6 @@ def recv_to_plsgen(clock_div, clock, fifobus, leds, out):
     @always(clock_div.posedge)
     def go_to_pulse():
         if reading :
-            read_val = fifobus.read_data
             pulse_in.next = fifobus.read_data
             leds.next = fifobus.read_data
             fifobus.read.next = False
@@ -125,7 +124,9 @@ def test_spi_pulsegen(clock, sck, mosi, miso, cs, leds, out):
         yield delay(15)
         enable.next=1
         tx.next=98
-        yield delay(70)
+        cs.next=0
+        yield delay(90)
+        cs.next=1
         tx.next=23
         yield delay(20)
         #assert rx == 98
