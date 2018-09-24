@@ -1,0 +1,42 @@
+[*]
+[*] GTKWave Analyzer v3.3.94 (w)1999-2018 BSI
+[*] Mon Sep 24 08:07:25 2018
+[*]
+[dumpfile] "/home/marco/Documents/mytest/rhea_dev/test/test_cores/test_spi/test_spi_led.vcd"
+[dumpfile_mtime] "Mon Sep 24 08:06:34 2018"
+[dumpfile_size] 12766
+[savefile] "/home/marco/Documents/mytest/rhea_dev/test/test_cores/test_spi/tcb.save.gtkw"
+[timestart] 0
+[size] 1920 1010
+[pos] -1 -1
+*-7.000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] test_spi_led.
+[treeopen] test_spi_led.spi_slave_led0.
+[sst_width] 332
+[signals_width] 239
+[sst_expanded] 1
+[sst_vpaned_height] 283
+@28
+test_spi_led.clock
+@22
+test_spi_led.tx[7:0]
+@28
+test_spi_led.mosi
+test_spi_led.cs
+test_spi_led.spi_slave_led0.clk_div
+@22
+test_spi_led.spi_slave_led0.spi_slave_fifo_async0.bitcnt[3:0]
+test_spi_led.spi_slave_led0.spi_slave_fifo_async0.icaps[7:0]
+test_spi_led.spi_slave_led0.spi_slave_fifo_async0.icap[7:0]
+@28
+test_spi_led.spi_slave_led0.recv_to_led0.fifobus_empty
+test_spi_led.spi_slave_led0.recv_to_led0.fifobus_read
+@22
+test_spi_led.spi_slave_led0.recv_to_led0.fifobus_read_data[7:0]
+test_spi_led.spi_slave_led0.recv_to_led0.leds[7:0]
+@28
+test_spi_led.spi_slave_led0.recv_to_led0.reading
+@29
+test_spi_led.spi_slave_led0.recv_to_led0.clock
+[pattern_trace] 1
+[pattern_trace] 0

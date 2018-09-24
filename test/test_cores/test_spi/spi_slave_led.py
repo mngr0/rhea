@@ -8,7 +8,7 @@ from myhdl import (Signal, intbv, instance, always_comb, delay, always,
                    StopSimulation, block)
 
 from rhea.system import Global, Clock, Reset, FIFOBus, Signals
-from rhea.cores.spi import SPIBus, spi_slave_fifo
+from rhea.cores.spi import SPIBus, spi_slave_fifo_async
 from rhea.utils.test import run_testbench, tb_default_args, tb_args
 from ser import ser
 from ClkDriver import ClkDriver
@@ -76,9 +76,12 @@ def spi_slave_led(clock, sck, mosi, miso, cs, leds):
     glbl = Global(clock)
     spibus = SPIBus(sck=sck, mosi=mosi, miso=miso, ss=cs)
     fifobus = FIFOBus()
-    div = divisor (clock, clk_div, 9)
+    div = divisor (clock, clk_div, 10)
+    fifobus.write_clock=clock
+    fifobus.read_clock=clk_div
+
     rtl = recv_to_led(clk_div, fifobus, leds)
-    tbdut = spi_slave_fifo(glbl, spibus, fifobus)
+    tbdut = spi_slave_fifo_async(glbl, spibus, fifobus)
 
     @always_comb
     def map():
@@ -132,7 +135,7 @@ else:
 if do_test:
     tr = test_spi_led(clock, sck, mosi,miso, cs, leds)
     tr.config_sim(trace=True)
-    tr.run_sim(1000)
+    tr.run_sim(10000)
 else:
     tr = spi_slave_led(clock, sck, mosi,miso, cs, leds)
     tr.convert('Verilog',initial_values=True)
