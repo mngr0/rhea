@@ -8,16 +8,19 @@ from myhdl import (Signal, intbv, instance, always_comb, delay, always,
                    StopSimulation, block)
 
 from rhea.system import Global, Clock, Reset, FIFOBus, Signals
-from rhea.cores.spi import SPIBus, spi_slave_fifo_async
+from rhea.cores.spi import SPIBus, spi_slave_fifo_async, spi_slave_fifo
 from rhea.utils.test import run_testbench, tb_default_args, tb_args
 from ser import ser
 from ClkDriver import ClkDriver
+from pulsegen import pulsegen
 
 sck = Signal(False)
 mosi = Signal(False)
 miso  = Signal(False)
 cs  = Signal(True)
 leds = Signal(intbv(0)[8:])
+out  = Signal(True)
+
 clock  = Signal(False)
 clk_div = Signal(False)
 
@@ -53,13 +56,18 @@ def divisor(
 
 
 @block
-def recv_to_led(clock, fifobus, leds):
+def recv_to_led(clock, fifobus, leds,out):
     reading=  Signal (False)
+    pulse_in = Signal(intbv(0)[8:])
+    clk_div = Signal(False)
+    div = divisor (clock, clk_div, 100)
+    plsgen = pulsegen(clock=clk_div, frequence=pulse_in, duration=10, out_pulse = out)
 
     @always(clock.posedge)
     def go_to_led():
         if reading :
             leds.next = fifobus.read_data
+            pulse_in.next = fifobus.read_data
             fifobus.read.next = False
             reading.next = False
         else:
@@ -67,21 +75,21 @@ def recv_to_led(clock, fifobus, leds):
                 fifobus.read.next = True
                 reading.next = True
 
-    return go_to_led
+    return go_to_led, plsgen, div
 
 
 
 @block
-def spi_slave_led(clock, sck, mosi, miso, cs, leds):
+def spi_slave_led(clock, sck, mosi, miso, cs, leds ,out):
     glbl = Global(clock)
     spibus = SPIBus(sck=sck, mosi=mosi, miso=miso, ss=cs)
     fifobus = FIFOBus()
     div = divisor (clock, clk_div, 10)
     fifobus.write_clock=clock
-    fifobus.read_clock=clk_div
+    fifobus.read_clock=clock
 
-    rtl = recv_to_led(clk_div, fifobus, leds)
-    tbdut = spi_slave_fifo_async(glbl, spibus, fifobus)
+    rtl = recv_to_led(clock, fifobus, leds,out)
+    tbdut = spi_slave_fifo(glbl, spibus, fifobus)
 
     @always_comb
     def map():
@@ -91,9 +99,9 @@ def spi_slave_led(clock, sck, mosi, miso, cs, leds):
 
 
 @block
-def test_spi_led(clock, sck, mosi, miso, cs, leds):
+def test_spi_led(clock, sck, mosi, miso, cs, leds,out):
     clkdrv = ClkDriver(clock,period=10)
-    ssled = spi_slave_led(clock, sck, mosi, miso, cs, leds)
+    ssled = spi_slave_led(clock, sck, mosi, miso, cs, leds,out)
     ts = ser (clock, tx, mosi, enable)
 
     @always_comb
@@ -133,9 +141,9 @@ else:
     do_test=False
 
 if do_test:
-    tr = test_spi_led(clock, sck, mosi,miso, cs, leds)
+    tr = test_spi_led(clock, sck, mosi,miso, cs, leds,out)
     tr.config_sim(trace=True)
     tr.run_sim(10000)
 else:
-    tr = spi_slave_led(clock, sck, mosi,miso, cs, leds)
+    tr = spi_slave_led(clock, sck, mosi,miso, cs, leds,out)
     tr.convert('Verilog',initial_values=True)
