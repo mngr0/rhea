@@ -55,8 +55,6 @@ def spi_slave_fifo(glbl, spibus, fifobus):
             spi_start.next = False
         elif not csn:
             spi_start.next = True
-        else:
-            spi_start.next = spi_start
 
     # SCK clock domain, this allows high SCK rates
     @always(sck.posedge, csn.posedge)
